@@ -1,0 +1,7 @@
+# 
+message = "Hello, today there were no problems with your servicea3     "
+msgLen = 53
+# SHA256 of alberto.zurini@gmail.com
+emailHash = "a7415dbbc1d192de29dd81963d0396c9f1857d32f5858fb960dc1295e3bc6f18"
+# SHA256 of a6:32:cb:56
+nfcIdHash = "3639244f038b60d58e492df2a11be1551cc886c54e9d2aedf97d0cbcab441e0d"

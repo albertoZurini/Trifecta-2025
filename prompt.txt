@@ -1,0 +1,17 @@
+I will give you two json arrays that contain information about sum operations between nodes in a graph. Assertion is just checking if two outputs are equal to each other. After the examples, I will give you a task and you should reason on it step by step. You can reason inside a <reasoning></reasoning> block. When you have an answer, you should write it in the <answer></answer> block.
+
+EXAMPLE 1:
+Nodes:  [{"id":"1","type":"pub_input"},{"id":"2","type":"priv_input"},{"id":"3","type":"sum"},{"id":"4","type":"priv_input"},{"id":"5","type":"assertion"}]
+Edges: [{"source":"2","target":"3"},{"source":"1","target":"3"},{"source":"4","target":"5"},{"source":"3","target":"5"}]
+Resulting operation: <answer>priv_input_2 + pub_input_1 == priv_input_4</answer>
+
+EXAMPLE 2:
+Nodes: [{"id":"1","type":"pub_input"},{"id":"2","type":"priv_input"},{"id":"3","type":"sum"},{"id":"4","type":"priv_input"},{"id":"5","type":"assertion"},{"id":"6","type":"multiplication"},{"id":"7","type":"pub_input"},{"id":"8","type":"pub_input"},{"id":"9","type":"assertion"}]
+Edges: [{"source":"2","target":"3"},{"source":"1","target":"3"},{"source":"3","target":"5"},{"source":"4","target":"6"},{"source":"7","target":"6"},{"source":"8","target":"5"},{"source":"4","target":"9"},{"source":"6","target":"9"}]
+Resulting operation: <answer>priv_input_2 + pub_input_1 == pub_input_8 && priv_input_4 * pub_input_7 == pub_input_8</answer>
+
+Now I finished with examples and I will give you the task.
+
+Nodes: [{"id":"1","type":"pub_input"},{"id":"2","type":"priv_input"},{"id":"3","type":"sum"},{"id":"4","type":"priv_input"},{"id":"5","type":"assertion"},{"id":"6","type":"multiplication"},{"id":"7","type":"pub_input"},{"id":"8","type":"pub_input"},{"id":"9","type":"assertion"},{"id":"10","type":"division"},{"id":"11","type":"assertion"}]
+Edges: [{"source":"2","target":"3"},{"source":"1","target":"3"},{"source":"3","target":"5"},{"source":"4","target":"6"},{"source":"7","target":"6"},{"source":"8","target":"5"},{"source":"4","target":"9"},{"source":"6","target":"9"},{"source":"1","target":"10"},{"source":"10","target":"11"},{"source":"8","target":"11"},{"source":"4","target":"10"}]
+Resulting operation:
