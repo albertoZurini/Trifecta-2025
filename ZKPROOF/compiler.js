@@ -137,11 +137,15 @@ function generateRustCode(conditionString) {
     }
   }).join(', ');
   
+  // Split the conditions by && to create separate assert statements
+  const conditions = conditionString.split('&&').map(condition => condition.trim());
+  const assertStatements = conditions.map(condition => `    assert(${condition});`).join('\n');
+  
   // Generate the Rust function
   return `fn main(
     ${args}
 ) {
-    assert(${conditionString});
+${assertStatements}
 }`;
 }
 
