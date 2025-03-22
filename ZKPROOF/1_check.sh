@@ -1,0 +1,1 @@
+docker run -v $PWD:/zkproof --rm -t zkp:latest /bin/bash -c "cd /zkproof/noir_proj && nargo check --overwrite"

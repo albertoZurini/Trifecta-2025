@@ -40,6 +40,8 @@ import { RiskAssessmentNode } from './nodes/RiskAssessmentNode';
 import { processNode } from '@/lib/api';
 import { PublicInputNode, PrivateInputNode, AssertionNode } from './nodes/InputOutputNodes';
 import { SumNode, SubtractionNode, MultiplicationNode, DivisionNode } from './nodes/OperationNodes';
+import toast from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 interface WorkflowDetailProps {
   workflow: Workflow;
@@ -135,9 +137,20 @@ export function WorkflowDetail({
       })
     }
 
-    console.log(JSON.stringify(nodesClean))
-    console.log(JSON.stringify(edgesClean))
-    
+    const toSave = {
+      nodes: nodesClean,
+      edges: edgesClean
+    }
+    const json = JSON.stringify(toSave, null, 2);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(json).then(
+        () => toast.success('Copied to clipboard'),
+        () => toast.error('Failed to copy')
+      );
+    } else {
+      console.warn('Clipboard API not available');
+      toast.error('Clipboard API not available');
+    }
 
     return;
     if (isExecuting) return;
@@ -437,7 +450,7 @@ export function WorkflowDetail({
             onClick={executeWorkflow}
             disabled={isExecuting}
           >
-            {isExecuting ? 'Running...' : 'Run Workflow'}
+            {isExecuting ? 'Running...' : 'Export workflow'}
           </button>
           <button className="px-4 py-2 bg-[#2a2b36] hover:bg-[#32333e] rounded-lg">
             Edit
@@ -558,6 +571,8 @@ export function WorkflowDetail({
           executions={nodeExecutions[selectedNode.id] || []}
         />
       )}
+
+      <Toaster />
     </div>
   );
 } 

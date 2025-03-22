@@ -311,7 +311,6 @@ export default function WorkflowsPage() {
         />
       )}
 
-      <Toaster />
     </div>
   );
 } 
