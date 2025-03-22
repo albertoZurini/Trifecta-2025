@@ -18,6 +18,8 @@ interface WorkflowCardProps {
 }
 
 export function WorkflowCard({ workflow, onShare, isPublic }: WorkflowCardProps) {
+  console.log('Rendering WorkflowCard:', workflow);
+  
   const router = useRouter();
 
   const handleClick = () => {
@@ -78,6 +80,27 @@ export function WorkflowCard({ workflow, onShare, isPublic }: WorkflowCardProps)
             style={{ width: `${workflow.progress}%` }}
           />
         </div>
+      </div>
+
+      <div className="mt-4 space-y-2 text-sm text-gray-400">
+        {workflow.framework && (
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Framework:</span>
+            <span className="text-blue-400">{workflow.framework}</span>
+          </div>
+        )}
+        {workflow.stepsCount && (
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Steps:</span>
+            <span className="text-purple-400">{workflow.stepsCount}</span>
+          </div>
+        )}
+        {workflow.publicInputs && (
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Public Inputs:</span>
+            <span className="text-green-400">{workflow.publicInputs.join(', ')}</span>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-between">

@@ -1,260 +1,645 @@
-// @ts-nocheck
-import { Workflow } from '@/types/workflow';
 import { Node, Edge } from '@xyflow/react';
+import { WorkflowPlan } from '../lib/automationLLM';
 
-export const initialWorkflows: Workflow[] = [
+// Add public workflow templates
+export const publicWorkflows: WorkflowPlan[] = [
   {
-    id: '1',
-    name: 'NVIDIA Analysis',
-    description: 'Real-time NVIDIA stock analysis with technical indicators',
-    status: 'active',
-    progress: 75,
-    lastRun: '2h ago',
-    assignee: 'AI Assistant',
-    prompt: 'get me the prices of NVIDIA since 2024',
-    chatHistory: [
+    id: 'pub-age-verifier',
+    steps: [
       {
-        id: '1',
-        content: 'Create a workflow for NVIDIA price analysis',
-        role: 'user',
-        timestamp: '2024-03-15T10:00:00Z'
+        type: 'input_validation',
+        input: 'Validate age input and range',
+        zkParams: {
+          visibility: 'private',
+          dataType: 'uint',
+          constraints: ['age > 0', 'age < 150']
+        }
       },
       {
-        id: '2',
-        content: "I'll help you analyze NVIDIA's stock performance. What specific metrics would you like to see?",
-        role: 'assistant',
-        timestamp: '2024-03-15T10:00:05Z'
+        type: 'computation',
+        input: 'Compare age with threshold',
+        dependencies: ['0'],
+        zkParams: {
+          visibility: 'private',
+          dataType: 'boolean',
+          constraints: ['isAdult = age >= ADULT_AGE']
+        }
       },
       {
-        id: '3',
-        content: "Let's look at price trends, technical indicators, and market sentiment",
-        role: 'user',
-        timestamp: '2024-03-15T10:00:30Z'
+        type: 'proof_generation',
+        input: 'Generate age verification proof',
+        dependencies: ['1'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'boolean',
+          constraints: ['proof = generateProof(isAdult)']
+        }
       }
+    ],
+    description: 'Simple age verification without revealing actual age',
+    circuitName: 'SimpleAgeVerifier',
+    framework: 'noir',
+    publicInputs: ['is_adult'],
+    privateInputs: ['age'],
+    initialNodes: [
+      {
+        id: 'age-input',
+        type: 'step',
+        position: { x: 100, y: 100 },
+        data: {
+          label: 'Age Input',
+          type: 'input_validation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'uint'
+          }
+        }
+      },
+      {
+        id: 'age-check',
+        type: 'step',
+        position: { x: 300, y: 100 },
+        data: {
+          label: 'Age Check',
+          type: 'computation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'boolean'
+          }
+        }
+      },
+      {
+        id: 'age-proof',
+        type: 'step',
+        position: { x: 200, y: 250 },
+        data: {
+          label: 'Generate Proof',
+          type: 'proof_generation',
+          zkParams: {
+            visibility: 'public',
+            dataType: 'boolean'
+          }
+        }
+      }
+    ],
+    initialEdges: [
+      { id: 'e1-2', source: 'age-input', target: 'age-check', animated: true },
+      { id: 'e2-3', source: 'age-check', target: 'age-proof', animated: true }
     ]
   },
   {
-    id: '2',
-    name: 'Portfolio Risk Assessment',
-    description: 'Multi-asset risk analysis and portfolio optimization',
-    status: 'scheduled',
-    progress: 30,
-    lastRun: '1d ago',
-    assignee: 'John Doe',
-    prompt: 'Create a workflow that analyzes portfolio risk and optimizes asset allocation',
-    chatHistory: [
+    id: 'pub-password-verifier',
+    steps: [
       {
-        id: '1',
-        content: 'Create a workflow for portfolio risk assessment',
-        role: 'user',
-        timestamp: '2024-03-15T10:00:00Z'
+        type: 'input_validation',
+        input: 'Validate password hash',
+        zkParams: {
+          visibility: 'private',
+          dataType: 'field',
+          constraints: ['hash.length == 32']
+        }
       },
       {
-        id: '2',
-        content: "I'll help you create a workflow for portfolio risk assessment. What is the risk tolerance for this portfolio?",
-        role: 'assistant',
-        timestamp: '2024-03-15T10:00:05Z'
+        type: 'computation',
+        input: 'Check password against stored hash',
+        dependencies: ['0'],
+        zkParams: {
+          visibility: 'private',
+          dataType: 'boolean',
+          constraints: ['matches = verifyHash(password, storedHash)']
+        }
       },
       {
-        id: '3',
-        content: "Let's use the Modern Portfolio Theory (MPT) to optimize the portfolio",
-        role: 'user',
-        timestamp: '2024-03-15T10:00:30Z'
+        type: 'proof_generation',
+        input: 'Generate password verification proof',
+        dependencies: ['1'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'boolean',
+          constraints: ['proof = generateProof(matches)']
+        }
       }
-    ]
-  },
-  {
-    id: '3',
-    name: 'Market Sentiment',
-    description: 'Social media and news sentiment analysis for crypto',
-    status: 'completed',
-    progress: 100,
-    lastRun: '3h ago',
-    assignee: 'AI Assistant',
-    prompt: 'Create a workflow that analyzes social media and news sentiment for crypto',
-    chatHistory: [
+    ],
+    description: 'Password verification without revealing the password',
+    circuitName: 'PasswordVerifier',
+    framework: 'circom',
+    publicInputs: ['stored_hash', 'is_valid'],
+    privateInputs: ['password'],
+    initialNodes: [
       {
-        id: '1',
-        content: 'Create a workflow for market sentiment analysis',
-        role: 'user',
-        timestamp: '2024-03-15T10:00:00Z'
+        id: 'pass-input',
+        type: 'step',
+        position: { x: 100, y: 100 },
+        data: {
+          label: 'Password Input',
+          type: 'input_validation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'field'
+          }
+        }
       },
       {
-        id: '2',
-        content: "I'll help you create a workflow for market sentiment analysis. What specific social media platforms and news sources would you like to include?",
-        role: 'assistant',
-        timestamp: '2024-03-15T10:00:05Z'
+        id: 'hash-verify',
+        type: 'step',
+        position: { x: 300, y: 100 },
+        data: {
+          label: 'Hash Verification',
+          type: 'computation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'boolean'
+          }
+        }
       },
       {
-        id: '3',
-        content: "Let's include Twitter, Reddit, and major news outlets",
-        role: 'user',
-        timestamp: '2024-03-15T10:00:30Z'
+        id: 'proof-gen',
+        type: 'step',
+        position: { x: 200, y: 250 },
+        data: {
+          label: 'Proof Generation',
+          type: 'proof_generation',
+          zkParams: {
+            visibility: 'public',
+            dataType: 'boolean'
+          }
+        }
       }
+    ],
+    initialEdges: [
+      { id: 'e1-2', source: 'pass-input', target: 'hash-verify', animated: true },
+      { id: 'e2-3', source: 'hash-verify', target: 'proof-gen', animated: true }
     ]
   }
 ];
 
-interface WorkflowTemplate extends Workflow {
-  initialNodes: Node[];
-  initialEdges: Edge[];
-}
-
-export const publicWorkflows: WorkflowTemplate[] = [
+// Keep existing mockWorkflows
+export const mockWorkflows: WorkflowPlan[] = [
   {
-    id: '2',
-    name: 'NVIDIA Stock Analysis',
-    description: 'Comprehensive analysis of NVIDIA stock performance with technical indicators',
-    status: 'active',
-    lastRun: '1d ago',
-    assignee: 'Public',
-    author: {
-      name: 'John Doe',
-      avatar: '/max.jpg',
-      role: 'Senior Financial Analyst'
-    },
-    prompt: 'Analyze NVIDIA stock performance',
-    chatHistory: [],
-    progress: 100,
+    id: 'mock-private-tx',
+    steps: [
+      {
+        type: 'input_validation',
+        input: 'Validate transaction amount and recipient address',
+        zkParams: {
+          visibility: 'private',
+          dataType: 'uint',
+          constraints: ['amount > 0', 'amount <= MAX_UINT']
+        }
+      },
+      {
+        type: 'computation',
+        input: 'Hash transaction details and generate commitment',
+        dependencies: ['0'],
+        zkParams: {
+          visibility: 'private',
+          dataType: 'field',
+          constraints: ['commitment = hash(amount, recipient, nonce)']
+        }
+      },
+      {
+        type: 'proof_generation',
+        input: 'Generate proof of valid transaction',
+        dependencies: ['1'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'boolean',
+          constraints: ['verifyTransaction(commitment, nullifier)']
+        }
+      },
+      {
+        type: 'verification',
+        input: 'Verify transaction proof on-chain',
+        dependencies: ['2'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'boolean',
+          constraints: ['verify(proof, publicInputs)']
+        }
+      }
+    ],
+    description: 'Private transaction proof using Aztec Protocol',
+    circuitName: 'PrivateTransactionCircuit',
+    framework: 'aztec',
+    publicInputs: ['commitment', 'nullifier'],
+    privateInputs: ['amount', 'recipient', 'nonce'],
     initialNodes: [
       {
-        id: 'data-1',
-        type: 'historical_data',
+        id: 'input-1',
+        type: 'step',
+        position: { x: 100, y: 100 },
         data: {
-          label: 'NVIDIA Data',
-          tool: {
-            args: {
-              query: 'NVDA',
-              startDate: '2024-01-01',
-              endDate: '2024-03-20'
-            }
+          label: 'Transaction Inputs',
+          type: 'input_validation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'uint'
           }
-        },
-        position: { x: 100, y: 100 }
+        }
       },
       {
-        id: 'avg-1',
-        type: 'average_node',
+        id: 'hash-1',
+        type: 'step',
+        position: { x: 100, y: 250 },
         data: {
-          label: 'Moving Average',
-          tool: {
-            args: {
-              period: 20
-            }
+          label: 'Hash Generation',
+          type: 'computation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'field'
           }
-        },
-        position: { x: 400, y: 100 }
+        }
       },
       {
-        id: 'chart-1',
-        type: 'candle_chart_node',
+        id: 'proof-1',
+        type: 'step',
+        position: { x: 400, y: 175 },
         data: {
-          label: 'Price Chart',
-          tool: {
-            args: {
-              timeframe: 'daily'
-            }
+          label: 'ZK Proof',
+          type: 'proof_generation',
+          zkParams: {
+            visibility: 'public',
+            dataType: 'boolean'
           }
-        },
-        position: { x: 400, y: 250 }
+        }
       }
     ],
     initialEdges: [
-      { id: 'e1-2', source: 'data-1', target: 'avg-1', type: 'smoothstep' },
-      { id: 'e1-3', source: 'data-1', target: 'chart-1', type: 'smoothstep' }
+      { id: 'e1-2', source: 'input-1', target: 'hash-1', animated: true },
+      { id: 'e2-3', source: 'hash-1', target: 'proof-1', animated: true }
     ]
   },
   {
-    id: '3',
-    name: 'Crypto Market Tracker',
-    description: 'Track major cryptocurrencies and generate market insights',
-    status: 'active',
-    lastRun: '3h ago',
-    assignee: 'Public',
-    author: {
-      name: 'Alex Thompson',
-      avatar: '/alex.jpg',
-      role: 'Crypto Researcher'
-    },
-    prompt: 'Track crypto markets',
-    chatHistory: [],
-    progress: 100,
+    id: 'mock-merkle-proof',
+    steps: [
+      {
+        type: 'input_validation',
+        input: 'Validate Merkle proof components',
+        zkParams: {
+          visibility: 'private',
+          dataType: 'field',
+          constraints: ['validateMerkleProof(proof, root)']
+        }
+      },
+      {
+        type: 'computation',
+        input: 'Compute Merkle path verification',
+        dependencies: ['0'],
+        zkParams: {
+          visibility: 'private',
+          dataType: 'boolean',
+          constraints: ['isValid = verifyMerklePath(leaf, path, root)']
+        }
+      },
+      {
+        type: 'proof_generation',
+        input: 'Generate ZK proof of Merkle membership',
+        dependencies: ['1'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'boolean',
+          constraints: ['proof = generateMerkleProof(leaf, path)']
+        }
+      },
+      {
+        type: 'smart_contract_integration',
+        input: 'Deploy Merkle verifier contract',
+        dependencies: ['2'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'field',
+          constraints: ['deployVerifier(merkleRoot)']
+        }
+      }
+    ],
+    description: 'Zero-knowledge Merkle tree membership proof',
+    circuitName: 'MerkleProofVerifier',
+    framework: 'circom',
+    publicInputs: ['merkle_root', 'leaf_hash'],
+    privateInputs: ['merkle_path', 'leaf_data'],
     initialNodes: [
       {
-        id: 'data-1',
-        type: 'historical_data',
+        id: 'merkle-input',
+        type: 'step',
+        position: { x: 100, y: 100 },
         data: {
-          name: 'BTC',
-          label: 'Bitcoin Data',
-          args: {
-            query: 'BTC-USD',
-            startDate: '2024-01-01',
-            endDate: '2024-03-20'
+          label: 'Merkle Inputs',
+          type: 'input_validation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'field'
           }
-        },
-        position: { x: 100, y: 100 }
+        }
       },
       {
-        id: 'data-2',
-        type: 'historical_data',
+        id: 'path-verify',
+        type: 'step',
+        position: { x: 400, y: 100 },
         data: {
-          name: 'ETH',
-          label: 'Ethereum Data',
-          args: {
-            query: 'ETH-USD',
-            startDate: '2024-01-01',
-            endDate: '2024-03-20'
+          label: 'Path Verification',
+          type: 'computation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'boolean'
           }
-        },
-        position: { x: 100, y: 250 }
+        }
       },
       {
-        id: 'chart-1',
-        type: 'candle_chart_node',
+        id: 'merkle-proof',
+        type: 'step',
+        position: { x: 250, y: 250 },
         data: {
-          label: 'Market Overview',
-          args: {
-            timeframe: 'daily'
+          label: 'Merkle Proof',
+          type: 'proof_generation',
+          zkParams: {
+            visibility: 'public',
+            dataType: 'boolean'
           }
-        },
-        position: { x: 400, y: 175 }
+        }
       }
     ],
     initialEdges: [
-      { id: 'e1-3', source: 'data-1', target: 'chart-1', type: 'smoothstep' },
-      { id: 'e2-3', source: 'data-2', target: 'chart-1', type: 'smoothstep' }
+      { id: 'e1-2', source: 'merkle-input', target: 'path-verify', animated: true },
+      { id: 'e2-3', source: 'path-verify', target: 'merkle-proof', animated: true }
     ]
   },
   {
-    id: '4',
-    name: 'Portfolio Risk Assessment',
-    description: 'Evaluate portfolio risk and suggest optimizations',
-    status: 'active',
-    lastRun: '5h ago',
-    assignee: 'Public',
-    author: {
-      name: 'Jade Wu',
-      avatar: '/jade.jpg',
-      role: 'Risk Management Expert'
-    },
-    prompt: 'Assess portfolio risk',
-    chatHistory: [],
-    progress: 100
-  },
-  {
-    id: '5',
-    name: 'Market Sentiment Analysis',
-    description: 'Analyze market sentiment using news and social media data',
-    status: 'active',
-    lastRun: '12h ago',
-    assignee: 'Public',
-    author: {
-      name: 'Max Smith',
-      avatar: '/max.jpg',
-      role: 'Data Scientist'
-    },
-    prompt: 'Analyze market sentiment',
-    chatHistory: [],
-    progress: 100
+    id: 'mock-semaphore',
+    steps: [
+      {
+        type: 'input_validation',
+        input: 'Validate identity commitment inputs',
+        zkParams: {
+          visibility: 'private',
+          dataType: 'field',
+          constraints: ['validateIdentityInputs(commitment)']
+        }
+      },
+      {
+        type: 'computation',
+        input: 'Generate Semaphore identity proof',
+        dependencies: ['0'],
+        zkParams: {
+          visibility: 'private',
+          dataType: 'field',
+          constraints: ['identity = generateSemaphoreProof(signal)']
+        }
+      },
+      {
+        type: 'proof_generation',
+        input: 'Create anonymous group membership proof',
+        dependencies: ['1'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'boolean',
+          constraints: ['proof = proveGroupMembership(identity, group)']
+        }
+      },
+      {
+        type: 'verification',
+        input: 'Verify Semaphore proof',
+        dependencies: ['2'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'boolean',
+          constraints: ['verify(proof, signal, group)']
+        }
+      }
+    ],
+    description: 'Anonymous voting using Semaphore protocol',
+    circuitName: 'SemaphoreVoting',
+    framework: 'noir',
+    publicInputs: ['group_id', 'signal_hash'],
+    privateInputs: ['identity_nullifier', 'identity_trapdoor'],
+    initialNodes: [
+      {
+        id: 'identity-input',
+        type: 'step',
+        position: { x: 100, y: 100 },
+        data: {
+          label: 'Identity Validation',
+          type: 'input_validation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'field'
+          }
+        }
+      },
+      {
+        id: 'semaphore-id',
+        type: 'step',
+        position: { x: 400, y: 100 },
+        data: {
+          label: 'Semaphore Identity',
+          type: 'computation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'field'
+          }
+        }
+      },
+      {
+        id: 'group-proof',
+        type: 'step',
+        position: { x: 250, y: 250 },
+        data: {
+          label: 'Group Membership',
+          type: 'proof_generation',
+          zkParams: {
+            visibility: 'public',
+            dataType: 'boolean'
+          }
+        }
+      },
+      {
+        id: 'verify',
+        type: 'step',
+        position: { x: 400, y: 400 },
+        data: {
+          label: 'Proof Verification',
+          type: 'verification',
+          zkParams: {
+            visibility: 'public',
+            dataType: 'boolean'
+          }
+        }
+      }
+    ],
+    initialEdges: [
+      { id: 'e1-2', source: 'identity-input', target: 'semaphore-id', animated: true },
+      { id: 'e2-3', source: 'semaphore-id', target: 'group-proof', animated: true },
+      { id: 'e3-4', source: 'group-proof', target: 'verify', animated: true }
+    ]
   }
-]; 
+];
+
+export const initialWorkflows: WorkflowPlan[] = [
+  {
+    id: 'init-range-proof',
+    steps: [
+      {
+        type: 'input_validation',
+        input: 'Validate range proof inputs',
+        zkParams: {
+          visibility: 'private',
+          dataType: 'uint',
+          constraints: ['value >= MIN_VALUE', 'value <= MAX_VALUE']
+        }
+      },
+      {
+        type: 'computation',
+        input: 'Calculate range boundaries',
+        dependencies: ['0'],
+        zkParams: {
+          visibility: 'private',
+          dataType: 'uint',
+          constraints: ['range = value / RANGE_SIZE']
+        }
+      },
+      {
+        type: 'proof_generation',
+        input: 'Generate range proof',
+        dependencies: ['1'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'boolean',
+          constraints: ['proof = generateRangeProof(value, range)']
+        }
+      }
+    ],
+    description: 'Basic range proof example using Aztec',
+    circuitName: 'BasicRangeProof',
+    framework: 'aztec',
+    publicInputs: ['range_id', 'is_in_range'],
+    privateInputs: ['value'],
+    initialNodes: [
+      {
+        id: 'range-input',
+        type: 'step',
+        position: { x: 100, y: 100 },
+        data: {
+          label: 'Range Input',
+          type: 'input_validation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'uint'
+          }
+        }
+      },
+      {
+        id: 'range-calc',
+        type: 'step',
+        position: { x: 300, y: 100 },
+        data: {
+          label: 'Range Calculation',
+          type: 'computation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'uint'
+          }
+        }
+      },
+      {
+        id: 'range-proof',
+        type: 'step',
+        position: { x: 200, y: 250 },
+        data: {
+          label: 'Range Proof',
+          type: 'proof_generation',
+          zkParams: {
+            visibility: 'public',
+            dataType: 'boolean'
+          }
+        }
+      }
+    ],
+    initialEdges: [
+      { id: 'e1-2', source: 'range-input', target: 'range-calc', animated: true },
+      { id: 'e2-3', source: 'range-calc', target: 'range-proof', animated: true }
+    ]
+  },
+  {
+    id: 'init-nullifier',
+    steps: [
+      {
+        type: 'input_validation',
+        input: 'Validate nullifier hash',
+        zkParams: {
+          visibility: 'private',
+          dataType: 'field',
+          constraints: ['nullifier.length == 32']
+        }
+      },
+      {
+        type: 'computation',
+        input: 'Generate commitment',
+        dependencies: ['0'],
+        zkParams: {
+          visibility: 'private',
+          dataType: 'field',
+          constraints: ['commitment = hash(nullifier, secret)']
+        }
+      },
+      {
+        type: 'proof_generation',
+        input: 'Generate nullifier proof',
+        dependencies: ['1'],
+        zkParams: {
+          visibility: 'public',
+          dataType: 'boolean',
+          constraints: ['proof = generateNullifierProof(commitment)']
+        }
+      }
+    ],
+    description: 'Simple nullifier example using Noir',
+    circuitName: 'NullifierExample',
+    framework: 'noir',
+    publicInputs: ['commitment_hash'],
+    privateInputs: ['nullifier', 'secret'],
+    initialNodes: [
+      {
+        id: 'nullifier-input',
+        type: 'step',
+        position: { x: 100, y: 100 },
+        data: {
+          label: 'Nullifier Input',
+          type: 'input_validation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'field'
+          }
+        }
+      },
+      {
+        id: 'commitment-gen',
+        type: 'step',
+        position: { x: 300, y: 100 },
+        data: {
+          label: 'Commitment Generation',
+          type: 'computation',
+          zkParams: {
+            visibility: 'private',
+            dataType: 'field'
+          }
+        }
+      },
+      {
+        id: 'nullifier-proof',
+        type: 'step',
+        position: { x: 200, y: 250 },
+        data: {
+          label: 'Nullifier Proof',
+          type: 'proof_generation',
+          zkParams: {
+            visibility: 'public',
+            dataType: 'boolean'
+          }
+        }
+      }
+    ],
+    initialEdges: [
+      { id: 'e1-2', source: 'nullifier-input', target: 'commitment-gen', animated: true },
+      { id: 'e2-3', source: 'commitment-gen', target: 'nullifier-proof', animated: true }
+    ]
+  }
+];

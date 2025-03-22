@@ -1,27 +1,47 @@
-import axios from 'axios';
-// Or we could use other free alternatives like:
-// - Hugging Face Inference API
-// - Anthropic Claude (free tier)
-// - Ollama (local)
+import OpenAI from 'openai';
+import { Node, Edge } from '@xyflow/react';
 
-interface AutomationStep {
-    type: 'historical_price' | 'company_info' | 'analysis' | 'visualization';
+export type ZKFramework = 'aztec' | 'circom' | 'noir' | 'snarkjs';
+export type StepType =
+    | 'input_validation'
+    | 'computation'
+    | 'proof_generation'
+    | 'verification'
+    | 'circuit_compilation'
+    | 'smart_contract_integration';
+
+export interface AutomationStep {
+    type: StepType;
     input: string;
     dependencies?: string[];
+    zkParams?: {
+        visibility: 'public' | 'private';
+        dataType: 'field' | 'boolean' | 'uint' | 'array';
+        constraints?: string[];
+    };
 }
 
-interface WorkflowPlan {
+export interface WorkflowPlan {
+    id: string;
     steps: AutomationStep[];
     description: string;
+    circuitName: string;
+    framework: ZKFramework;
+    publicInputs: string[];
+    privateInputs: string[];
+    initialNodes: Node[];
+    initialEdges: Edge[];
 }
 
 export class AutomationLLM {
     private static instance: AutomationLLM;
-    private apiKey: string;
-    private baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+    private openai: OpenAI;
 
     private constructor() {
-        this.apiKey = 'AIzaSyDeDmVU5rq5eWi3tCVUGof6KsVwnAyMOxk';
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) throw new Error('OPENAI_API_KEY is not set');
+
+        this.openai = new OpenAI({ apiKey });
     }
 
     static getInstance(): AutomationLLM {
@@ -31,116 +51,117 @@ export class AutomationLLM {
         return AutomationLLM.instance;
     }
 
-    private async callAPI(systemPrompt: string, userPrompt: string) {
+    private async callAPI(systemPrompt: string, userPrompt: string): Promise<string> {
         try {
-            const prompt = `${systemPrompt}\n\nUser request: ${userPrompt}`;
-            const response = await axios.post(
-                `${this.baseUrl}?key=${this.apiKey}`,
-                {
-                    contents: [{
-                        parts: [{ text: prompt }]
-                    }]
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            const response = await this.openai.chat.completions.create({
+                model: "gpt-3.5-turbo",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: userPrompt }
+                ],
+                temperature: 0.7,
+            });
 
-            return response.data.candidates[0].content.parts[0].text;
+            return response.choices[0].message.content || '';
         } catch (error) {
-            console.error('Gemini API Error:', error);
+            console.error('OpenAI API Error:', error);
             throw error;
         }
     }
 
-    async parseWorkflow(prompt: string): Promise<WorkflowPlan> {
+    async createWorkflow(prompt: string, framework: ZKFramework = 'aztec'): Promise<WorkflowPlan> {
         try {
-            const systemPrompt = `You are a financial workflow automation expert. Analyze the user request and break it down into executable steps.
-                Each step must be one of these types: historical_price, company_info, analysis, visualization.
+            const systemPrompt = `You are a Zero Knowledge Proof expert. 
+                Analyze the user request and break it down into executable ZK proof circuit steps.
+                Target framework: ${framework}
+                Each step must be one of these types: input_validation, computation, proof_generation, verification, circuit_compilation, smart_contract_integration.
                 Return the response in this exact JSON format:
                 {
                     "steps": [
                         {
                             "type": "one_of_allowed_types",
                             "input": "specific instruction for this step",
-                            "dependencies": ["0", "1"]
+                            "dependencies": ["0", "1"],
+                            "zkParams": {
+                                "visibility": "public or private",
+                                "dataType": "field, boolean, uint, or array",
+                                "constraints": ["list of arithmetic constraints"]
+                            }
                         }
                     ],
-                    "description": "brief workflow description"
+                    "description": "brief workflow description",
+                    "circuitName": "name of the circuit",
+                    "framework": "${framework}",
+                    "publicInputs": ["list of public inputs"],
+                    "privateInputs": ["list of private inputs"]
                 }
                 Only respond with valid JSON, no other text.`;
 
             const result = await this.callAPI(systemPrompt, prompt);
             return JSON.parse(result);
         } catch (error) {
-            console.error('Error parsing workflow:', error);
+            console.error('Error creating workflow:', error);
             return {
+                id: `error-${Date.now()}`,
                 steps: [],
-                description: "Failed to parse workflow: " + (error instanceof Error ? error.message : String(error))
+                description: `Failed to create workflow: ${error instanceof Error ? error.message : String(error)}`,
+                circuitName: "",
+                framework,
+                publicInputs: [],
+                privateInputs: [],
+                initialNodes: [],
+                initialEdges: []
             };
         }
     }
 
-    async suggestNextStep(currentSteps: AutomationStep[]): Promise<AutomationStep | null> {
+    async validateCircuit(steps: AutomationStep[], framework: ZKFramework): Promise<boolean> {
         try {
-            const systemPrompt = `Given these workflow steps, suggest the next logical step if needed.
-                Current steps: ${JSON.stringify(currentSteps, null, 2)}
-                Return a JSON object with the next step or null if no more steps are needed.
-                Only respond with valid JSON, no other text.`;
-
-            const result = await this.callAPI(systemPrompt, "What should be the next step?");
-            return JSON.parse(result);
-        } catch (error) {
-            console.error('Error suggesting next step:', error);
-            return null;
-        }
-    }
-
-    async validateWorkflow(steps: AutomationStep[]): Promise<boolean> {
-        try {
-            const systemPrompt = `Validate if this workflow makes logical sense and all dependencies are correct.
-                Workflow: ${JSON.stringify(steps, null, 2)}
+            const systemPrompt = `Validate if this ZK proof circuit for ${framework} makes logical sense and all constraints are satisfiable.
+                Circuit steps: ${JSON.stringify(steps, null, 2)}
+                Check for:
+                - Constraint satisfaction
+                - Proper input/output relationships
+                - Completeness and soundness
+                - Framework-specific requirements
                 Respond with only the word "true" or "false".`;
 
-            const result = await this.callAPI(systemPrompt, "Is this workflow valid?");
+            const result = await this.callAPI(systemPrompt, "Is this circuit valid?");
             return result.toLowerCase().trim() === 'true';
         } catch (error) {
-            console.error('Error validating workflow:', error);
+            console.error('Error validating circuit:', error);
             return false;
         }
     }
 
-    async getCompanyInfo(companyName: string): Promise<string> {
+    async generateCode(workflow: WorkflowPlan): Promise<string> {
         try {
-            const systemPrompt = `You are a financial expert. Provide a brief, professional description of the company, focusing on:
-                - Main business and industry
-                - Key products or services
-                - Market position
-                - Notable recent developments
-                Keep the response concise and factual.`;
+            const systemPrompt = `Generate ${workflow.framework} compatible code for this ZK proof circuit.
+                Workflow: ${JSON.stringify(workflow, null, 2)}
+                Include:
+                - Circuit definition
+                - Proof generation
+                - Verification
+                - Setup instructions
+                Return only the code, no explanations.`;
 
-            return await this.callAPI(systemPrompt, companyName);
+            return await this.callAPI(systemPrompt, "Generate code");
         } catch (error) {
-            console.error('Error getting company info:', error);
-            return `Sorry, I couldn't retrieve information about ${companyName}`;
+            console.error('Error generating code:', error);
+            return `Failed to generate ${workflow.framework} code: ${error instanceof Error ? error.message : String(error)}`;
         }
     }
-}
 
-// Export helper functions
-export async function createWorkflowFromPrompt(prompt: string): Promise<WorkflowPlan> {
-    const llm = AutomationLLM.getInstance();
-    return await llm.parseWorkflow(prompt);
-}
+    // Static helper methods
+    static async createZKWorkflow(prompt: string, framework: ZKFramework = 'aztec'): Promise<WorkflowPlan> {
+        return AutomationLLM.getInstance().createWorkflow(prompt, framework);
+    }
 
-export async function suggestWorkflowCompletion(steps: AutomationStep[]): Promise<AutomationStep | null> {
-    const llm = AutomationLLM.getInstance();
-    return await llm.suggestNextStep(steps);
-}
+    static async validateZKCircuit(steps: AutomationStep[], framework: ZKFramework): Promise<boolean> {
+        return AutomationLLM.getInstance().validateCircuit(steps, framework);
+    }
 
-export async function getCompanyDescription(companyName: string): Promise<string> {
-    const llm = AutomationLLM.getInstance();
-    return await llm.getCompanyInfo(companyName);
-} 
+    static async generateZKCode(workflow: WorkflowPlan): Promise<string> {
+        return AutomationLLM.getInstance().generateCode(workflow);
+    }
+}

@@ -22,4 +22,8 @@ export interface Workflow {
   prompt: string;
   chatHistory: ChatMessage[];
   progress: number;
+  framework?: string;
+  stepsCount?: number;
+  publicInputs?: string[];
+  privateInputs?: string[];
 } 
