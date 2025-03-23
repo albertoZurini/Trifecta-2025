@@ -1,0 +1,54 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "pub_input"
+    },
+    {
+      "id": "2",
+      "type": "assertion"
+    },
+    {
+      "id": "3",
+      "type": "priv_input"
+    },
+    {
+      "id": "4",
+      "type": "pub_input"
+    },
+    {
+      "id": "5",
+      "type": "sum"
+    },
+    {
+      "id": "6",
+      "type": "assertion"
+    }
+  ],
+  "edges": [
+    {
+      "source": "3",
+      "target": "2"
+    },
+    {
+      "source": "1",
+      "target": "2"
+    },
+    {
+      "source": "5",
+      "target": "6"
+    },
+    {
+      "source": "3",
+      "target": "6"
+    },
+    {
+      "source": "4",
+      "target": "5"
+    },
+    {
+      "source": "1",
+      "target": "5"
+    }
+  ]
+}

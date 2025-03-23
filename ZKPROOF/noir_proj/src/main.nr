@@ -1,7 +1,5 @@
 fn main(
-    a: pub u8, 
-    b: u8, 
-    c: u8 
+    priv_input_3: u8, pub_input_1: pub u8, pub_input_4: pub u8
 ) {
-    assert(a + b == c);
+    assert(priv_input_3 == pub_input_1);
 }
