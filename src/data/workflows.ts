@@ -5,6 +5,13 @@ import { WorkflowPlan } from '../lib/automationLLM';
 export const publicWorkflows: WorkflowPlan[] = [
   {
     id: 'pub-age-verifier',
+    name: 'Age Verifier',
+    status: 'active',
+    lastRun: 'Never',
+    assignee: 'Public',
+    prompt: '',
+    chatHistory: [],
+    progress: 0,
     steps: [
       {
         type: 'input_validation',
@@ -89,6 +96,13 @@ export const publicWorkflows: WorkflowPlan[] = [
   },
   {
     id: 'pub-password-verifier',
+    name: 'Password Verifier',
+    status: 'active',
+    lastRun: 'Never',
+    assignee: 'Public',
+    prompt: '',
+    chatHistory: [],
+    progress: 0,
     steps: [
       {
         type: 'input_validation',
@@ -177,6 +191,13 @@ export const publicWorkflows: WorkflowPlan[] = [
 export const mockWorkflows: WorkflowPlan[] = [
   {
     id: 'mock-private-tx',
+    name: 'Private Transaction Proof',
+    status: 'active',
+    lastRun: 'Never',
+    assignee: 'Mock',
+    prompt: '',
+    chatHistory: [],
+    progress: 0,
     steps: [
       {
         type: 'input_validation',
@@ -271,6 +292,13 @@ export const mockWorkflows: WorkflowPlan[] = [
   },
   {
     id: 'mock-merkle-proof',
+    name: 'Merkle Proof',
+    status: 'active',
+    lastRun: 'Never',
+    assignee: 'Mock',
+    prompt: '',
+    chatHistory: [],
+    progress: 0,
     steps: [
       {
         type: 'input_validation',
@@ -365,6 +393,13 @@ export const mockWorkflows: WorkflowPlan[] = [
   },
   {
     id: 'mock-semaphore',
+    name: 'Semaphore Voting',
+    status: 'active',
+    lastRun: 'Never',
+    assignee: 'Mock',
+    prompt: '',
+    chatHistory: [],
+    progress: 0,
     steps: [
       {
         type: 'input_validation',
@@ -476,6 +511,13 @@ export const mockWorkflows: WorkflowPlan[] = [
 export const initialWorkflows: WorkflowPlan[] = [
   {
     id: 'init-range-proof',
+    name: 'Range Proof',
+    status: 'active',
+    lastRun: 'Never',
+    assignee: 'Initial',
+    prompt: '',
+    chatHistory: [],
+    progress: 0,
     steps: [
       {
         type: 'input_validation',
@@ -560,6 +602,13 @@ export const initialWorkflows: WorkflowPlan[] = [
   },
   {
     id: 'init-nullifier',
+    name: 'Nullifier Proof',
+    status: 'active',
+    lastRun: 'Never',
+    assignee: 'Initial',
+    prompt: '',
+    chatHistory: [],
+    progress: 0,
     steps: [
       {
         type: 'input_validation',

@@ -36,11 +36,11 @@ import { PublicInputNode, PrivateInputNode, AssertionNode } from './nodes/InputO
 import { SumNode, SubtractionNode, MultiplicationNode, DivisionNode } from './nodes/OperationNodes';
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
-import { generateWorkflow } from '@/lib/automationLLM';
+import { generateWorkflow, WorkflowPlan } from '@/lib/automationLLM';
 
 interface WorkflowDetailProps {
-  workflow: Workflow;
-  setWorkflow: (workflow: Workflow) => void;
+  workflow: WorkflowPlan;
+  setWorkflow?: (workflow: WorkflowPlan) => void;
   initialNodes?: Node[];
   initialEdges?: Edge[];
 }

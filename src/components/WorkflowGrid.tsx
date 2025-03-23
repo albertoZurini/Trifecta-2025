@@ -1,8 +1,8 @@
-import { Workflow } from '@/types/workflow';
+import { WorkflowPlan } from '@/lib/automationLLM';
 import { WorkflowCard } from './WorkflowCard';
 
 type WorkflowGridProps = {
-  workflows: Workflow[];
+  workflows: WorkflowPlan[];
 };
 
 export function WorkflowGrid({ workflows }: WorkflowGridProps) {

@@ -12,14 +12,14 @@ interface Author {
 }
 
 interface WorkflowCardProps {
-  workflow: Workflow & { author?: Author };
-  onShare: (workflow: Workflow) => void;
+  workflow: WorkflowPlan;
+  onShare: (workflow: WorkflowPlan) => void;
   isPublic?: boolean;
 }
 
 export function WorkflowCard({ workflow, onShare, isPublic }: WorkflowCardProps) {
   console.log('Rendering WorkflowCard:', workflow);
-  
+
   const router = useRouter();
 
   const handleClick = () => {

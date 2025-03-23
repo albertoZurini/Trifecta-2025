@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Node } from '@xyflow/react';
-import { NodeData } from './WorkflowDetail';
+import { NodeData } from '@/types/workflow';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -49,8 +49,8 @@ export function WorkflowPromptChat({
           <div
             key={index}
             className={`mb-2 p-2 rounded-lg ${msg.role === 'user'
-                ? 'bg-blue-500/20 border border-blue-500/50 ml-8'
-                : 'bg-[#2a2b36] border border-gray-700 mr-8'
+              ? 'bg-blue-500/20 border border-blue-500/50 ml-8'
+              : 'bg-[#2a2b36] border border-gray-700 mr-8'
               }`}
           >
             <div className="text-sm text-gray-400 mb-1">
@@ -79,8 +79,8 @@ export function WorkflowPromptChat({
           onClick={handleSendMessage}
           disabled={isLoading || !inputText.trim()}
           className={`px-4 py-2 rounded-lg ${isLoading || !inputText.trim()
-              ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
+            ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+            : 'bg-blue-500 text-white hover:bg-blue-600'
             }`}
         >
           Send

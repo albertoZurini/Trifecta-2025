@@ -26,4 +26,12 @@ export interface Workflow {
   stepsCount?: number;
   publicInputs?: string[];
   privateInputs?: string[];
-} 
+}
+
+export type NodeData = {
+  label: string;
+  type: string;
+  status?: 'idle' | 'processing' | 'completed' | 'error';
+  result?: any;
+  [key: string]: unknown;
+};

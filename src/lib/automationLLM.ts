@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { Node, Edge } from '@xyflow/react';
-import { NodeData } from '@/components/WorkflowDetail';
+import { NodeData } from '@/types/workflow';
 
 export type ZKFramework = 'aztec' | 'circom' | 'noir' | 'snarkjs';
 export type StepType =
@@ -24,10 +24,17 @@ export interface AutomationStep {
 
 export interface WorkflowPlan {
     id: string;
-    steps: AutomationStep[];
+    name: string;
     description: string;
+    status: 'active' | 'scheduled' | 'completed' | 'failed';
+    lastRun: string;
+    assignee: string;
+    prompt: string;
+    chatHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
+    progress: number;
     circuitName: string;
     framework: ZKFramework;
+    steps: AutomationStep[];
     publicInputs: string[];
     privateInputs: string[];
     initialNodes: Node[];
@@ -136,10 +143,17 @@ export class AutomationLLM {
             console.error('Error creating workflow:', error);
             return {
                 id: `error-${Date.now()}`,
-                steps: [],
+                name: "",
                 description: `Failed to create workflow: ${error instanceof Error ? error.message : String(error)}`,
+                status: 'failed',
+                lastRun: "",
+                assignee: "",
+                prompt: "",
+                chatHistory: [],
+                progress: 0,
                 circuitName: "",
                 framework,
+                steps: [],
                 publicInputs: [],
                 privateInputs: [],
                 initialNodes: [],

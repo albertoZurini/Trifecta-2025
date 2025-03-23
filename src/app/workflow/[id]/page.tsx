@@ -1,6 +1,5 @@
 'use client';
 
-import { Sidebar } from '@/components/Sidebar';
 import { WorkflowDetail } from '@/components/WorkflowDetail';
 import { initialWorkflows } from '@/data/workflows';
 import { useParams } from 'next/navigation';
