@@ -1,0 +1,1 @@
+docker run -v $PWD:/zkproof --rm -it zkp2:latest /bin/bash

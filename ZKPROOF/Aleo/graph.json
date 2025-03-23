@@ -1,0 +1,26 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "priv_input"
+    },
+    {
+      "id": "2",
+      "type": "pub_input"
+    },
+    {
+      "id": "3",
+      "type": "assertion"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "target": "3"
+    },
+    {
+      "source": "2",
+      "target": "3"
+    }
+  ]
+}
