@@ -36,6 +36,7 @@ import { PublicInputNode, PrivateInputNode, AssertionNode } from './nodes/InputO
 import { SumNode, SubtractionNode, MultiplicationNode, DivisionNode } from './nodes/OperationNodes';
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
+import { generateWorkflow } from '@/lib/automationLLM';
 
 interface WorkflowDetailProps {
   workflow: Workflow;
@@ -94,6 +95,7 @@ export function WorkflowDetail({
   const [isExecuting, setIsExecuting] = useState(false);
   const [chatHistory, setChatHistory] = useState<Array<{ sent: boolean; message: string }>>([]);
   const [inInitialized, setInInitialized] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // 2. All useCallback hooks
   const onConnect = useCallback(
@@ -228,11 +230,6 @@ export function WorkflowDetail({
     },
     [setNodes]
   );
-
-  const poorManChatHistory = useCallback(() => {
-    return chatHistory.map(msg => `${msg.sent ? 'User: ' : 'Assistant: '}${msg.message}`).join('\n\n');
-  }, [chatHistory]);
-
   // 3. All useEffect hooks last
   useEffect(() => {
     if (!mounted) {
@@ -243,46 +240,7 @@ export function WorkflowDetail({
     }
   }, [mounted, initialNodes, initialEdges, setNodes, setEdges]);
 
-  // Don't render flow until after mount
 
-  const addMessageToChatHistory = async (messageContent: string) => {
-    const newMessage = {
-      sent: true,
-      message: messageContent,
-    };
-    setChatHistory(prev => [...prev, newMessage]);
-
-    const response = await fetchGraph(messageContent);
-    if (response) {
-      const newResponse = {
-        sent: false,
-        message: response || '',
-      };
-      setChatHistory(prev => [...prev, newResponse]);
-    }
-  };
-
-  const fetchGraph = async (prompt: string) => {
-    try {
-      console.log("workflow", workflow);
-      console.log(prompt);
-
-      // Use the full chat history context when making the request
-      const fullContext = poorManChatHistory() + '\n\nUser: ' + prompt;
-
-      const response_and_nodes = await level0graph(fullContext || "provide a summary, stock prize, news and historical data for nvidia since 01 02 2024");
-      const nodes = response_and_nodes.nodes;
-      const response = response_and_nodes.text;
-      console.log("nodes", nodes);
-      console.log("response", response);
-      setNodes(nds => nds.concat(nodes as Node<NodeData>[]));
-      setWorkflow({ ...workflow, prompt: '' });
-      console.log("workflow", workflow);
-      return response;
-    } catch (error) {
-      console.error("Error loading workflow graph:", error);
-    }
-  };
 
   function AddNode() {
     console.log("Add node")
@@ -417,6 +375,60 @@ export function WorkflowDetail({
     })
   }
 
+  const handlePromptSubmit = useCallback(async (prompt: string) => {
+    try {
+      setIsGenerating(true);
+
+      // Add user message to chat
+      const userMessage: ChatMessage = {
+        role: 'user',
+        content: prompt
+      };
+      setChatHistory(prev => [...prev, userMessage]);
+
+      // Generate workflow from prompt, including current nodes state
+      const response = await generateWorkflow(prompt, nodes);
+
+      // Add assistant message to chat
+      const assistantMessage: ChatMessage = {
+        role: 'assistant',
+        content: response.message
+      };
+      setChatHistory(prev => [...prev, assistantMessage]);
+
+      // If we got suggested nodes and edges, add them to the graph
+      if (response.nodes?.length) {
+        // Adjust positions to avoid overlap with existing nodes
+        const adjustedNodes = response.nodes.map((node, index) => ({
+          ...node,
+          position: {
+            x: Math.random() * 500,
+            y: Math.random() * 400
+          }
+        }));
+
+        setNodes(nds => [...nds, ...adjustedNodes]);
+
+        // Add the edges if they exist
+        if (response.edges?.length) {
+          setEdges(eds => [...eds, ...response.edges]);
+        }
+
+        toast.success('Added suggested circuit to the workflow');
+      }
+
+    } catch (error) {
+      console.error('Error generating workflow:', error);
+      const errorMessage: ChatMessage = {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error while generating the workflow.'
+      };
+      setChatHistory(prev => [...prev, errorMessage]);
+      toast.error('Failed to generate workflow');
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [nodes, setNodes, setEdges]);
 
   return (
     <div className="space-y-6">
@@ -539,7 +551,7 @@ export function WorkflowDetail({
           <div className="bg-[#2a2b36] p-6 rounded-lg">
             <WorkflowPromptChat
               chatHistory={chatHistory}
-              inputTextCallback={addMessageToChatHistory}
+              inputTextCallback={handlePromptSubmit}
             />
           </div>
 
@@ -548,13 +560,6 @@ export function WorkflowDetail({
 
       </div>
 
-      {selectedNode && (
-        <NodeModal
-          node={selectedNode}
-          onClose={() => setSelectedNode(null)}
-          executions={nodeExecutions[selectedNode.id] || []}
-        />
-      )}
 
       <Toaster />
     </div>

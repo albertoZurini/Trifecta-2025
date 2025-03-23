@@ -20,6 +20,7 @@ import { StepNode } from './nodes/StepNode';
 import { NodeModal } from './NodeModal';
 import { PublicInputNode, PrivateInputNode, AssertionNode } from './nodes/InputOutputNodes';
 import { SumNode, SubtractionNode, MultiplicationNode, DivisionNode } from './nodes/OperationNodes';
+import { type Edge as EdgeType } from '@xyflow/react';
 
 export interface WorkflowFlowProps {
     workflow: WorkflowPlan;
@@ -52,11 +53,11 @@ const nodeTypes: NodeTypes = {
 };
 
 export function WorkflowFlow({ workflow, onNodeClick, customNodes, onNodesChange }: WorkflowFlowProps) {
-    const [nodes, setNodes, onNodesChangeInternal] = useNodesState<Node>(customNodes || []);
-    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
+    const [nodes, setNodes, onNodesChangeInternal] = useNodesState<NodeData>(customNodes || []);
+    const [edges, setEdges, onEdgesChange] = useEdgesState<EdgeType[]>([]);
 
     const onConnect = useCallback<OnConnect>((params) => {
-        setEdges((eds) => addEdge(params, eds));
+        setEdges((eds) => addEdge(params, eds) as EdgeType[]);
     }, [setEdges]);
 
     // Handle nodes changes

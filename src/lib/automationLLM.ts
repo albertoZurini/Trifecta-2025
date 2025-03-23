@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { Node, Edge } from '@xyflow/react';
+import { NodeData } from '@/components/WorkflowDetail';
 
 export type ZKFramework = 'aztec' | 'circom' | 'noir' | 'snarkjs';
 export type StepType =
@@ -31,6 +32,38 @@ export interface WorkflowPlan {
     privateInputs: string[];
     initialNodes: Node[];
     initialEdges: Edge[];
+}
+
+interface GenerateWorkflowResponse {
+    message: string;
+    nodes?: Node<NodeData>[];
+    edges?: Edge[];
+}
+
+export async function generateWorkflow(prompt: string, currentNodes: Node[] = []): Promise<GenerateWorkflowResponse> {
+    try {
+        const response = await fetch('/api/generate-workflow', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt, currentNodes }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to generate workflow');
+        }
+
+        const data = await response.json();
+        return {
+            message: data.message,
+            nodes: data.nodes,
+            edges: data.edges,
+        };
+    } catch (error) {
+        console.error('Error in generateWorkflow:', error);
+        throw error;
+    }
 }
 
 export class AutomationLLM {
