@@ -1,6 +1,6 @@
 # ZKFlow 🔐
 
-A visual workflow builder for Zero Knowledge proof circuits, developed during ETHGlobal Trifecta 2024. Design, test, and deploy ZK circuits with an intuitive drag-and-drop interface and AI assistance.
+A visual workflow builder for Zero Knowledge proof circuits, developed during ETHGlobal Trifecta 2025. Design, test, and deploy ZK circuits with an intuitive drag-and-drop interface and AI assistance.
 
 ## 🌟 Features
 
@@ -107,9 +107,9 @@ Contributions welcome! Please check our issues page or submit PRs.
 
 MIT License - see [LICENSE](LICENSE)
 
-## 🏆 ETHGlobal Trifecta 2024
+## 🏆 ETHGlobal Trifecta 2025
 
-Built during ETHGlobal Trifecta 2024. Check out our [project submission](https://ethglobal.com/showcase/your-project).
+Built during ETHGlobal Trifecta 2025. Check out our [project submission](https://ethglobal.com/showcase/your-project).
 
 ## 🙏 Acknowledgments
 
