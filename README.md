@@ -1,179 +1,143 @@
-# AI Workflow Builder
+# ZKFlow 🔐
 
-A Next.js application for building and managing AI-powered financial analysis workflows.
+A visual workflow builder for Zero Knowledge proof circuits, developed during ETHGlobal Trifecta 2024. Design, test, and deploy ZK circuits with an intuitive drag-and-drop interface and AI assistance.
 
-## Features
+## 🌟 Features
 
-- 🤖 AI-powered workflow generation
-- 📊 Interactive workflow visualization
-- 💬 Real-time chat interface
-- 📈 Financial data integration
-- 🔄 Automated workflow execution
+- **Visual Circuit Builder**: Drag-and-drop interface for designing ZK circuits
+- **AI-Assisted Design**: Get suggestions and optimizations from our AI assistant
+- **Multi-Framework Support**:
+  - Aztec: Privacy-focused L2 with powerful ZK capabilities
+  - Aleo: Private application platform with Leo programming language
+- **Decentralized Deployment**: Using Autonome for trustless circuit deployment
+- **Real-time Preview**: See your circuit changes instantly
+- **Smart Suggestions**: AI helps optimize your circuit design
 
-## Tech Stack
+## 🛠 Tech Stack
 
 - **Framework**: Next.js 14 with App Router
 - **Styling**: Tailwind CSS
 - **Visualization**: React Flow
-- **API Integration**: Axios
+- **AI**: OpenAI GPT-4
 - **Type Safety**: TypeScript
+- **Deployment**: Docker, Autonome
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 src/
 ├── app/                    # Next.js app router pages
-│   ├── page.tsx           # Dashboard page
-│   └── workflows/         # Workflow-related pages
-│       └── create/        # Workflow creation page
-├── components/            # React components
-│   ├── NodeModal.tsx      # Node details modal
-│   ├── WorkflowCard.tsx   # Workflow card component
-│   ├── WorkflowDetail.tsx # Workflow details view
-│   └── WorkflowGraph.tsx  # Flow visualization
-├── lib/                   # Utility functions and API
-│   ├── api.ts            # API client
-│   ├── automationLLM.ts  # LLM integration
-│   ├── parseAPI.ts       # API response parsing
-│   └── workflowExecutor.ts # Workflow execution logic
-└── types/                 # TypeScript type definitions
-    ├── api.ts            # API types
-    └── workflow.ts       # Workflow types
+│   ├── api/               # API routes
+│   │   ├── generate-workflow/  # AI workflow generation
+│   │   └── health/       # Health check endpoint
+│   └── workflows/        # Workflow pages
+├── components/           # React components
+│   ├── nodes/           # ZK circuit node components
+│   ├── WorkflowDetail.tsx  # Main workflow editor
+│   └── WorkflowPromptChat.tsx  # AI assistant chat
+├── lib/                 # Core logic
+│   ├── automationLLM.ts # AI integration
+│   └── workflowExecutor.ts # Circuit execution
+└── types/              # TypeScript definitions
 ```
 
-## Getting Started
+## 🚀 Quick Start
 
-1. Clone the repository:
+### Using Docker
 
 ```bash
-git clone https://github.com/yourusername/ai-workflow-builder.git
+# Clone the repository
+git clone https://github.com/your-username/zk-flow-builder.git
+
+# Set up environment variables
+cp .env.example .env
+# Add your OpenAI API key to .env
+
+# Run with Docker
+docker-compose up --build
 ```
 
-2. Install dependencies:
+### Local Development
 
 ```bash
+# Install dependencies
 npm install
-```
 
-3. Create a `.env.local` file with required environment variables:
-
-```env
-NEXT_PUBLIC_API_URL=your_api_url
-```
-
-4. Run the development server:
-
-```bash
+# Run development server
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+## 🔧 Available Node Types
 
-## Development
+### Input/Output Nodes
 
-### Key Components
+- **Public Input** (`pub_input`): For public circuit inputs
+- **Private Input** (`priv_input`): For private/secret inputs
+- **Assertion** (`assertion`): For circuit constraints
 
-- **WorkflowGraph**: Handles the visual representation of workflows using React Flow
-- **NodeModal**: Displays detailed information about workflow nodes
-- **WorkflowExecutor**: Manages the execution of workflow nodes
-- **API Client**: Handles communication with the backend services
+### Operation Nodes
 
-### Type System
+- **Addition** (`sum`): Arithmetic addition
+- **Subtraction** (`subtraction`): Arithmetic subtraction
+- **Multiplication** (`multiplication`): Arithmetic multiplication
+- **Division** (`division`): Arithmetic division
 
-The project uses TypeScript for type safety. Key types include:
+## 💡 Usage Examples
 
-```typescript
-// Workflow Types
-interface Workflow {
-  id: string;
-  name: string;
-  description: string;
-  status: "active" | "scheduled" | "completed" | "error";
-  lastRun: string;
-  assignee: string;
-  prompt: string;
-  chatHistory: ChatMessage[];
-  progress?: number;
-}
+1. **Age Verification Circuit**:
 
-// Node Types
-type NodeData = {
-  label: string;
-  type: string;
-  status?: "idle" | "processing" | "completed" | "error";
-  result?: Record<string, unknown>;
-  [key: string]: unknown;
-};
-```
+   - Private input: Age
+   - Computation: Compare with threshold
+   - Public output: Boolean (is_adult)
 
-### API Integration
+2. **Token Transfer**:
+   - Private inputs: Amount, recipient
+   - Operations: Balance checks
+   - Public output: Transfer success
 
-The application integrates with a financial data API for:
+## 🔒 Security
 
-- Historical price data
-- Company information
-- Market analysis
-- LLM-powered insights
+This project is a hackathon prototype. Do not use in production without proper security review.
 
-### Styling
+## 🤝 Contributing
 
-- Uses Tailwind CSS for styling
-- Dark theme optimized for financial data visualization
-- Responsive design for all screen sizes
+Contributions welcome! Please check our issues page or submit PRs.
 
-### API Endpoints
+## 📄 License
 
-```typescript
-const BASE_URL =
-  "https://idchat-api-containerapp01-dev.orangepebble-16234c4b.switzerlandnorth.azurecontainerapps.io/";
+MIT License - see [LICENSE](LICENSE)
 
-// Available endpoints:
--POST / query - // General query endpoint
-  POST / searchwithcriteria - // Search with specific criteria
-  POST / ohlcv - // Historical price data
-  POST / companydatasearch - // Company information
-  POST / summary - // Data summaries
-  POST / llm; // LLM interactions
-```
+## 🏆 ETHGlobal Trifecta 2024
 
-### Workflow Execution
+Built during ETHGlobal Trifecta 2024. Check out our [project submission](https://ethglobal.com/showcase/your-project).
 
-The workflow executor handles:
+## 🙏 Acknowledgments
 
-- Sequential node execution
-- Status management
-- Error handling
-- Data flow between nodes
+- ETHGlobal team
+- Aztec Protocol
+- Aleo Platform
+- Autonome Network
 
-```typescript
-class WorkflowExecutor {
-  // Execute entire workflow
-  public async execute(): Promise<void>;
+## How it's made
 
-  // Execute single node
-  private async executeNode(node: Node<NodeData>): Promise<void>;
+ZKFlow combines several cutting-edge technologies to create a seamless ZK circuit building experience:
 
-  // Get next nodes in workflow
-  private getNextNodes(nodeId: string): Node<NodeData>[];
-}
-```
+## Project Foundation
 
-## Contributing
+- The initial frontend structure was generated using [Lovable](https://lovable.dev), which provided:
+  - Base Next.js 14 setup with TypeScript
+  - React Flow integration for node-based workflows
+  - Basic chat interface structure
+  - Dark theme foundation
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+*
+* > Note: While this helped with the initial frontend setup (reflected in our first commit), all ZK-specific features, circuit design, framework integrations, and hackathon-related functionality were built from scratch during the hackathon.
 
-## Troubleshooting
+We then heavily modified and specialized it for ZK circuit design by:
 
-Common issues:
+- Adding ZK-specific node types
+- Integrating Aztec and Aleo frameworks
+- Implementing circuit validation
+- Adding deployment capabilities through Autonome
 
-- **Build Errors**: Run `npm run build` to check for type errors
-- **API Connection**: Verify your `.env.local` configuration
-- **Node Version**: Use Node.js 18+ for best compatibility
-
-## License
-
-MIT License - see LICENSE file for details
+## Core Technologies
